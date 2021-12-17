@@ -1,0 +1,119 @@
+﻿#include <iostream>
+#include<iomanip>
+#include <cstdlib>
+#include <time.h>
+#define _USE_MATH_DEFINES
+#include <math.h>
+using namespace std;
+
+double f1(double x)
+{
+	return (x + 10.0) * (x - 7.0);
+}
+double f2(double x)
+{
+	return cos(x) - x + 1;
+	//cos(1.28) = 0.28
+}
+double f3(double x)
+{
+	return cos(x) - x * x * x;
+}
+double f4(double x)
+{
+	return -sin(x) - 3 * x * x;
+}
+
+void main(void)
+{
+	srand(time(NULL));
+	cout.precision(12);
+	system("color 0A");
+	setlocale(LC_ALL, "Russian");
+	cout << "Дихотомия\n";
+	int kolvoX;
+	cout << "Vvedite kolvo korney\n";
+	cin >> kolvoX;
+	cout << "Kolvo korney: " << kolvoX << endl;;
+	double* X = new  double[kolvoX * 2], *korni = new  double[kolvoX];
+	cout << "VVedite tochki takie chto f(x) imeut raznie znaki\n";
+	for (int i = 0; i < kolvoX; i++)
+	{
+		cin >> X[i * 2];
+		cin >> X[i * 2 + 1];
+	}
+	int iter;
+	cout << "Введите точность E\n";
+	cin >> iter;
+	double x[2];
+	double per, index;
+	for (int i = 0; i < kolvoX; i++)
+	{	
+		per = X[0];
+		x[0] = X[i * 2];
+		x[1] = X[i * 2 + 1];
+		for (int i = 0; abs(f3(per)) > iter && i<1000; i++)
+		{
+			per = (x[0] + x[1]) / 2.0;
+			if ((f3(per) * f3(x[0])) < 0)
+			{
+				x[1] = per;
+			}
+			else if ((f3(per) * f3(x[1])) < 0)
+			{
+				x[0] = per;
+			}
+			else {
+				korni[i] = per;
+				break;
+			}
+			index = i;
+		}
+		korni[i] = per;
+	}
+	cout << "korni\n";
+	for (int i = 0; i < kolvoX; i++)
+	{
+		cout << korni[i] << endl;
+		cout << "iter = " << index << endl;
+		cout << "f(x) = " << f3(korni[i]) << endl;
+	}
+	///////////////
+	cout << "Метод секущих\n";
+	double pr1, pr2, xk;
+	cout << "Введите начальные приближения\n";
+	cin >> pr1;
+	cin >> pr2;
+	cout << "Введите количество итераций\n";
+	cin >> iter;
+	for (size_t i = 0; i < iter; i++)
+		//cout << "Введите точность\n";
+		//cin >> iter;
+		//for (size_t i = 0; abs(f2(pr2)) > iter; i++)
+	{
+		if (f3(pr2) - f3(pr1) == 0)
+			break;
+		xk = pr2 - ((pr2 - pr1) / (f3(pr2) - f3(pr1))) * f3(pr2);
+		pr1 = pr2;
+		pr2 = xk;
+	}
+	xk = pr2;
+	cout << "Корень\n";
+	cout << xk << endl;
+	cout << "f(x) = " << f3(xk) << endl;
+	/////////////////
+	cout << "Ньютон\n";
+	cout << "Введите приближенное значение\n";
+	cin >> xk;
+	cout << "Введите количество итераций\n";
+	cin >> iter;
+	//for (size_t i = 0; abs(f3(xk)) > iter && i<1000; i++)
+	for (size_t i = 0; i < iter; i++)
+	{
+		xk = xk - f3(xk) / f4(xk);
+	}
+	cout << "Корень\n";
+	cout << xk << endl;
+	cout << "f(x) = " << f3(xk) << endl;
+	system("pause");
+}
