@@ -1,0 +1,130 @@
+﻿#include <iostream>
+#include<iomanip>
+#include <cstdlib>
+#include <time.h>
+#define _USE_MATH_DEFINES
+#include <math.h>
+using namespace std;
+
+void main(void)
+{
+	srand(time(NULL));
+	cout.precision(12);
+	system("color 0A");
+	int razmerA = 6;
+	//cin >> razmerA;
+	double h = 0.2;
+	double* X = new  double[razmerA], * Y = new double[razmerA];
+	double* C = new  double[razmerA];
+	double* D = new  double[razmerA];
+	double* Bi = new  double[razmerA];
+	//f(x)=cos(Pi*x);
+	cout << "X" << "\t" << "Y" << endl;
+	for (int i = 0; i < razmerA; i++)
+	{
+		X[i] = 0.2 * i;
+		Y[i] = cos(M_PI * X[i]);
+		cout << X[i] << "\t" << Y[i] << endl;
+	}
+	//f''(x)=-Pi^2*cos(Pi*x);
+	C[0] = -1.0 * M_PI * M_PI * cos(M_PI * X[0]);
+	C[razmerA - 1] = -1.0 * M_PI * M_PI * cos(M_PI * X[razmerA - 1]);
+	//c[i-1]+4c[i]+c[i+1]=6(y[i+1]-2y[i]+y[i-1])  i=1,razmerA-1
+	//метод прогонки
+	double* c = new  double[razmerA - 2];
+	double* d = new  double[razmerA - 2];
+	double* e = new  double[razmerA - 2];
+	double* b = new  double[razmerA - 2];
+	double* A = new  double[razmerA - 2];
+	double* B = new  double[razmerA - 2];
+	double* x = new  double[razmerA - 2];
+	for (int i = 0; i < razmerA - 2; i++)
+	{
+		if (i == 0)
+		{
+			c[i] = 0;
+			d[i] = 4;
+			e[i] = 1;
+			b[i] = (6.0 / (h * h)) * (Y[i + 2] - 2.0 * Y[i + 1] + Y[i]) - C[0];
+		}
+		else if (i == razmerA - 3)
+		{
+			c[i] = 1;
+			d[i] = 4;
+			e[i] = 0;
+			b[i] = (6.0 / (h * h)) * (Y[i + 2] - 2.0 * Y[i + 1] + Y[i]) - C[razmerA - 1];
+		}
+		else {
+			c[i] = 1;
+			d[i] = 4;
+			e[i] = 1;
+			b[i] = (6.0 / (h * h)) * (Y[i + 2] - 2 * Y[i + 1] + Y[i]);
+		}
+	}
+	A[1] = -1.0 * e[0] / d[0];
+	B[1] = b[0] / d[0];
+	for (int i = 1; i < razmerA - 3; i++)
+	{
+		A[i + 1] = -1.0 * e[i] / (d[i] + c[i] * A[i]);
+		B[i + 1] = (-1.0 * c[i] * B[i] + b[i]) / (d[i] + c[i] * A[i]);
+	}
+	x[razmerA - 3] = (-1.0 * c[razmerA - 3] * B[razmerA - 3] + b[razmerA - 3]) / (d[razmerA - 3] + c[razmerA - 3] * A[razmerA - 3]);
+	for (int i = razmerA - 4; i >= 0; i--)
+	{
+		x[i] = A[i + 1] * x[i + 1] + B[i + 1];
+	}
+	for (int i = 0; i < razmerA - 2; i++)
+	{
+		C[i + 1] = x[i];
+	}
+	cout << "C[i]" << endl;
+	for (int i = 0; i < razmerA; i++)
+	{
+		cout << C[i] << endl;
+	}
+	delete[] c;
+	delete[] d;
+	delete[] e;
+	delete[] b;
+	delete[] A;
+	delete[] B;
+	delete[] x;
+	////////////////////////
+	for (int i = 1; i < razmerA; i++)
+	{
+		D[i] = (C[i] - C[i - 1]) / h;
+	}
+	for (int i = 0; i < razmerA; i++)
+	{
+		Bi[i] = h * C[i] / 2.0 - h * h * D[i] / 6.0 + (Y[i] - Y[i - 1]) / h;
+	}
+	cout << "S(x)" << endl;
+	cout << "X" << "\t\t" << "otvet(S(x))" << "\t\t" << "cos(M_PI*X[i])" << "\tModule" << endl;
+	double per;
+	double module = 0;
+	double perr[2];
+	perr[0] = 0.21;
+	perr[1] = 1.0 / 6;
+	//
+	int j = 0;
+	for (int i = 0; i < 2; i++)
+	{
+		per = perr[i];
+		for (int i = 0; i < razmerA - 1; i++)
+		{
+			if (per > X[i] && per < X[i + 1])
+			{
+				j = i + 1;
+			}
+		}
+		if (j != 0)
+		{
+			//S(x)=a[i]+Bi[i](x-x[i])+C[i]/2(x-x[i])^2+D[i]/6(x-x[i])^3
+			double otvet;
+			otvet = Y[j] + Bi[j] * (per - X[j]) + (C[j] / 2.0) * (per - X[j]) * (per - X[j]) + (D[j] / 6.0) * (per - X[j]) * (per - X[j]) * (per - X[j]);
+			module = abs(abs(otvet) - abs(cos(M_PI * per)));
+			cout << per << '\t' << otvet << "\t\t" << cos(M_PI * per) << "\t" << module << endl;
+		}
+	}
+	system("pause");
+}
