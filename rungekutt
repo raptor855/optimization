@@ -1,0 +1,52 @@
+#include <iostream>
+#include<iomanip>
+#include <cstdlib>
+#include <time.h>
+#define _USE_MATH_DEFINES
+#include <math.h>
+using namespace std;
+
+double f1(double x,double y)
+{
+	return x * x - 2 * y;
+}
+double f2(double x)
+{
+	return 0.75 * exp(-2 * x) + x * x / 2.0 - x / 2.0 + 0.25;
+}
+
+void main(void)
+{
+	srand(time(NULL));
+	cout.precision(12);
+	setlocale(LC_ALL, "Russian");
+	cout << "Метод Рунге-Куттa четвертого порядка\n";
+	//y(0) = 1
+	//[0;1]
+	double kolvoh;
+	cout << "Введите количество отрезков\n";
+	cin >> kolvoh;
+	double h = 1.0 / kolvoh;
+	double* Y = new  double[kolvoh + 1];
+	double k1, k2, k3, k4;
+	Y[0] = 1;
+	for (size_t i = 0; i < kolvoh; i++)
+	{
+		k1 = f1(h * i, Y[i]);
+		k2 = f1(h * i + h / 2.0, Y[i] + h / 2.0 * k1);
+		k3 = f1(h * i + h / 2.0, Y[i] + h / 2.0 * k2);
+		k4 = f1(h * i + h, Y[i] + h * k3);
+		Y[i + 1] = Y[i] + h / 6.0 * (k1 + 2.0 * k2 + 2.0 * k3 + k4);
+	}
+	cout << "Otvet\n";
+	cout << "x\tТочное\t\tПриближенное\tпогрешность\n";
+	double MM = 0;
+	for (size_t i = 1; i <= kolvoh; i++)
+	{
+		cout << h * i << "\t" << f2(h * i) << "\t" << Y[i] << "\t" << abs(abs(Y[i]) - abs(f2(h * i))) << endl;
+		if (abs(abs(Y[i]) - abs(f2(h * i))) > MM)
+			MM = abs(abs(Y[i]) - abs(f2(h * i)));
+	}
+	cout << "Максимальная погрешность: " << MM << endl;
+	system("pause");
+}
