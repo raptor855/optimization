@@ -1,0 +1,202 @@
+#include <iostream>
+#include <cstdlib>
+#include <time.h>
+#include <Windows.h>// Обязательное подключение файла
+using namespace std;
+
+void main(void)
+{
+	srand(time(NULL));
+	cout.precision(12);
+	system("color 0A");
+	int razmerA = 3;
+	cin >> razmerA;
+	double** A = new double* [razmerA];
+	double* X = new double[razmerA], * Xi = new double[razmerA], * B = new double[razmerA];
+	double* zamena = new double[razmerA + 1];
+
+	cout << "X = ( ";
+	for (int i = 0; i < razmerA; i++)
+	{
+		X[i] = 1.0 + rand() / 100.0;
+		//X[i] = (i + 1);
+		//cout << X[i] << " ";
+	}
+	cout << ")" << "\n";
+
+	cout << "A = ( " << "\n";
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(hConsole, (WORD)((0 << 4) | 4));
+	int с = 1;
+	for (int i = 0; i < razmerA; i++)
+	{
+		if (с < 14) с++;
+		else с = 1;
+		SetConsoleTextAttribute(hConsole, (WORD)((0 << 4) | с));
+		A[i] = new double[razmerA];
+		for (int j = 0; j < razmerA; j++)
+		{
+			A[i][j] = 1.0 + rand() % 100;
+			//cout << A[i][j] << " ";
+		}
+		//cout << "\n";
+	}
+	SetConsoleTextAttribute(hConsole, (WORD)((0 << 4) | 10));
+	cout << ")" << "\n";
+
+	cout << "B = ( ";
+	for (int i = 0; i < razmerA; i++)
+	{
+		B[i] = 0;
+		for (int j = 0; j < razmerA; j++)
+		{
+			B[i] += A[i][j] * X[j];
+		}
+		//cout << B[i] << " ";
+	}
+	cout << ")" << "\n";
+
+	/*
+	for (int i = 0; i < razmerA; i++)
+	{
+	X[i] = 0;
+	}
+	*/
+	cout << "//////////////////////////////////////\n";
+
+	for (int k = 0; k < razmerA; k++) {
+		//находим максимальный элемент столбца
+		double max = A[k][k];
+		int it = k;
+		for (int i = k; i < razmerA; i++)
+		{
+			if (A[i][k] > max) {
+				max = A[i][k];
+				it = i;
+			}
+		}
+		//меняем строчки местами если не 1(k)
+		if (it != k)
+		{
+			for (int j = k; j < razmerA; j++)
+			{
+				zamena[j] = A[k][j];
+				A[k][j] = A[it][j];
+				A[it][j] = zamena[j];
+				/*
+				for (int i1 = 0; i1 < razmerA; i1++)
+				{
+				for (int j1 = 0; j1 < razmerA; j1++)
+				{
+				cout << A[i1][j1] << " ";
+				}
+				cout << "\n";
+				}
+				cout << "////////////\n";
+				*/
+			}
+			zamena[razmerA] = B[k];
+			B[k] = B[it];
+			B[it] = zamena[razmerA];
+			/*
+			cout << "Pomenyli strochki\n";
+			for (int i1 = 0; i1 < razmerA; i1++)
+			{
+			for (int j1 = 0; j1 < razmerA; j1++)
+			{
+			cout << A[i1][j1] << " ";
+			}
+			cout << B[i1];
+			cout << "\n";
+			}
+			cout << "////////////\n";
+			*/
+		}
+		//делим
+		double kel;
+		kel = A[k][k];
+		for (int j = k; j < razmerA; j++)
+		{
+			A[k][j] /= kel;
+		}
+		B[k] /= kel;
+		/*
+		cout << "Podelili\n";
+		for (int i1 = 0; i1 < razmerA; i1++)
+		{
+		for (int j1 = 0; j1 < razmerA; j1++)
+		{
+		cout << A[i1][j1] << " ";
+		}
+		cout << B[i1];
+		cout << "\n";
+		}
+		cout << "////////////\n";
+		*/
+		//вычитаем
+		for (int i = k + 1; i < razmerA; i++)
+		{
+			for (int j = k; j < razmerA; j++)
+			{
+				zamena[j] = A[k][j] * A[i][k];
+			}
+			zamena[razmerA] = B[k] * A[i][k];
+			for (int j = k; j < razmerA; j++)
+			{
+				A[i][j] -= zamena[j];
+			}
+			B[i] -= zamena[razmerA];
+			/*
+			cout << "Vishli 1\n";
+			for (int i1 = 0; i1 < razmerA; i1++)
+			{
+			for (int j1 = 0; j1 < razmerA; j1++)
+			{
+			cout << A[i1][j1] << " ";
+			}
+			cout << B[i1];
+			cout << "\n";
+			}
+			cout << "////////////\n";
+			*/
+		}
+	}
+
+	cout << "Otvet\n";
+	//Находим Х
+	for (int k = razmerA - 1; k >= 0; k--)
+	{
+		Xi[k] = B[k];
+		for (int i = razmerA - 1; i > k; i--)
+		{
+			Xi[k] -= A[k][i] * Xi[i];
+			//cout << "t " << i << " t\n";
+		}
+	}
+
+	cout << "X = ( ";
+	for (int i = 0; i < razmerA; i++)
+	{
+		//cout << Xi[i] << " ";
+	}
+	cout << ")" << "\n";
+	double MM = 0;
+	for (int i = 0; i < razmerA; i++)
+	{
+		//cout << Xi[i] << " " << X[i] << "\n";
+		double k = Xi[i] - X[i];
+		//cout << k << "\n";
+		//cout << abs(k) << "\n";
+		if (abs(k) > MM)
+		{
+			MM = abs(k);
+		}
+	}
+	cout << "\nModul: " << MM << "\n";
+
+	for (int i = 0; i < razmerA; i++)
+		delete[] A[i];
+	delete[] A;
+
+	system("pause");
+}
