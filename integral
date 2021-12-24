@@ -8,11 +8,12 @@ using namespace std;
 
 double f(double x)
 {
-	int ver = 1;
-	if (ver == 1)
-	{
-		return 1.0 / log(x);
-	}
+
+		return x*x-1;
+}
+double fint(double x1, double x2)
+{
+	return (((x2 * x2 * x2) / 3)-x2) - (((x1 * x1 * x1) / 3)-x1);
 }
 
 void main(void)
@@ -26,7 +27,9 @@ void main(void)
 	//cin >> n;
 	//cin >> a >> b;
 	double h;
+
 	h = (b - a) / n;
+	cout << "integral= " << fint(a, b) << "\n";
 	cout << "Promejutok integr [" << a << ";" << b << "]" << endl;
 	cout << "Kolvo otrezkov " << n << endl;
 	cout << "Shag razbieniy " << h << endl;
@@ -40,6 +43,7 @@ void main(void)
 	}
 	S *= h;
 	cout << "S: " << S << endl;
+	cout << "pogreshnost: " << fint(a, b)-S << "\n";
 	cout << "Metod trapeciy\n";
 	x = a;
 	S = (f(x) + f(b)) / 2.0;
@@ -50,6 +54,7 @@ void main(void)
 	}
 	S *= h;
 	cout << "S: " << S << endl;
+	cout << "pogreshnost: " << fint(a, b) - S << "\n";
 	cout << "Metod Simpsona\n";
 	double N, H, s;
 	N = n * 2.0;
@@ -79,5 +84,6 @@ void main(void)
 	S += 4.0 * s;
 	S *= H / 3.0;
 	cout << "S: " << S << endl;
+	cout << "pogreshnost: " << fint(a, b) - S << "\n";
 	system("pause");
 }
